@@ -900,27 +900,25 @@ WHERE A.HAGBEON = '200911131'
 -----------------------------------------------------부속시설-평생교육원-교육신청-교육과정수강신청---------------------------------------------------------------------------------------------
 --학년도,학기(기수),부속기관,과정명,개설과정코드,개설과정명,과정시작일,과정종료일,접수시작일,접수종료일,수강료,신청일
 SELECT
-  A.YY--학년도
-, A.HAGGI-- ,학기(기수)
-, C.PSNM -- ,부속기관
-, B.PSNM-- ,과정명
-, A.GWAJEONGCD-- ,개설과정코드
-, A.GWAJEONGNM-- ,개설과정명
-, DBO.GETDT(A.FRDT) AS FRDT-- ,과정시작일
-, DBO.GETDT(A.TODT) AS TODT-- ,과정종료일
-, DBO.GETDT(A.JEOBSUFRDT) AS JEOBSUFRDT-- ,접수시작일
-, DBO.GETDT(A.JEOBSUTODT) AS JEOBSUTODT-- ,접수종료일
-, FORMAT(A.SUGANGAMT, '#,#0') AS SUGANGAMT-- ,수강료
+  A.YY                                                               --  학년도
+, A.HAGGI                                                            -- ,학기(기수)
+, C.PSNM                                  AS BUSOGNM                 -- ,부속기관
+, B.PSNM                                  AS GWAJEONGNM              -- ,과정명
+, A.GWAJEONGCD                                                       -- ,개설과정코드
+, A.GWAJEONGNM                                                       -- ,개설과정명
+, DBO.GETDT(A.FRDT)                 AS FRDT                     -- ,과정시작일
+, DBO.GETDT(A.TODT)                 AS TODT                     -- ,과정종료일
+, DBO.GETDT(A.JEOBSUFRDT)           AS JEOBSUFRDT               -- ,접수시작일
+, DBO.GETDT(A.JEOBSUTODT)           AS JEOBSUTODT               -- ,접수종료일
+, FORMAT(A.SUGANGAMT, '#,#0')            AS SUGANGAMT                            -- ,수강료
 FROM STB_GWAJEONG_M A  --24
 INNER JOIN STB_GWAJEONGCD_M B ON B.JUNGBUNLYUCD = A.JUNGBUNLYUCD  --24  XXX
 INNER JOIN STB_GWAJEONGCD_M C ON C.JUNGBUNLYUCD ='$' AND C.DAEBUNLYUCD = A.DAEBUNLYUCD  --24
 WHERE 1=1
 AND A.YY = '2018'
 AND A.HAGGI = '2'
-AND (B.DAEBUNLYUCD = '01' AND B.JUNGBUNLYUCD = '0104')                  -- XX
-AND A.GWAJEONGNM LIKE '%마케팅%'
-
-
+AND (A.DAEBUNLYUCD = LEFT('0104',2) AND A.JUNGBUNLYUCD = '0104')                  -- XX
+AND A.GWAJEONGNM LIKE '%노사%'
 
 
 
