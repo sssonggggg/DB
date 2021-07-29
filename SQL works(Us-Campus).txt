@@ -793,8 +793,6 @@ INSERT INTO SSS_SILSEUBHAGCHUL_M (
 
 
 -----------------------------------------------------교육과정별교과과정-개설강좌목록조회-------------------------------------------------------------------------------
---
-
 -----------------------------------------------------교육과정별 교과목록조회-----------------------------------------------------------------------------------------
 -----------------------------------------------------교육과정별 교과목록신규--------------------------------------------------------------------------------------------
 -----------------------------------------------------교육과정별 교과목록수정--------------------------------------------------------------------------------------------
@@ -823,14 +821,78 @@ SELECT
 FROM SSE_GAESEOLGANGJWA_V A  --3739
 INNER JOIN SSE_SIGANPYO_D B ON B.YY = A.YY AND B.HAGGI = A.HAGGI AND B.GWAMOGCD = A.GWAMOGCD
                           AND B.SOSOGCD = A.SOSOGCD AND B.HAGNYEON = A.HAGNYEON AND B.BUNBAN = A.BUNBAN
-
-
-
-
-
+--도저히모르겠어 나중에 실력쌓고다시하기
 -----------------------------------------------------출석입력(pc용)출석입력학생목록조회--------------------------------------------------------------------------------------------
-
 -----------------------------------------------------출석입력(pc용)개설강좌목록조회--------------------------------------------------------------------------------------------
+
+
+
+
+
+-----------------------------------------------------학사-수강-학적관리-학적부조회---------------------------------------------------------------------------------------------
+--학번,성명,성명(한자/영문),주민등록번호,국적,휴대폰,전화번호,이메일,주소,현주소
+--입학전형구분,정원내외구분,입학구분,수험번호,입학일자,추천조합,출신고교,고교졸업일,출신대학명,신입생일련번호
+--졸업일자,학위명,학위번호,졸업증서번호,조기졸업여부
+--교원자격증번호,교직자격종별,경력
+--보호자명,보호자관계,보호자연락처,보호자휴대폰,보호자주소
+--군번,제대일,군별/병력구분
+SELECT
+  A.HAGBEON--학번
+, A.NM-- ,성명
+, '('+A.NMHAN+ '/'+ A.NMENG1+ ''+A.NMENG2+')' AS [NMHAN/NMENG]
+, SUBSTRING(A.JUMINNO,1,6) + '-' + SUBSTRING(A.JUMINNO,7,1) +'*****'-- ,주민등록번호
+, DBO.GETCODENM('COR38',A.GUGJEOGGB) AS GUGJEOGGBNM-- ,국적
+, B.MOBILE -- ,휴대폰
+, B.TELNO-- ,전화번호
+, B.EMAIL-- ,이메일
+, B.JUSO1
+, B.JUSO2-- ,주소
+, B.HYEONJUSO1
+, B.HYEONJUSO2-- ,현주소
+, DBO.GETCODENM('SHJ11',A.IBHAGGB) AS IBHAGGBNM-- ,입학구분
+, DBO.GETCODENM('SIS03',A.JEONHYEONGGB) AS JEONHYEONGGBNM--입학전형구분
+, DBO.GETCODENM('COR06',A.JEONGWONNAEOEGB) AS JEONGWONNAEOEGBNM-- ,정원내외구분
+, A.SUHEOMNO-- ,수험번호
+-- ,추천조합--------------------------------------------------------------------------------------------------???????
+, C.GOGYONM-- ,출신고교
+, DBO.GETDT(A.IBHAGDT) AS IBHAGDT--입학일
+, (CASE WHEN GOGYOJEDT != '' AND GOGYOJEDT IS NOT NULL THEN GOGYOJEDT  ELSE '' END) AS GOGYOJEDT-- ,고교졸업일
+, C.BFDAEHAGGYONM-- ,출신대학명
+-- ,신입생일련번호---------------------------------------------------------------------------------------------????????
+, DBO.GETDT(A.JOLEOBDT) AS JOLEOBDT-- ,졸업일자
+, DBO.GETCODENM('COR21',A.SOSOGHAGWIGB) AS SOSOGHAGWIGB-- ,학위명
+, A.HAGWINO-- ,학위번호
+, A.JEJEUNGSEONO-- ,졸업증서번호
+, A.JOGIJEYN-- ,조기졸업여부
+, A.GYOWONNO--교원자격증번호
+, DBO.GETCODENM('SGJ01',A.JAGYEOGGB) AS JAGYEOGGB-- ,교직자격종별
+, D.GYEONGLYEOG-- ,경력
+, B.BOHOJANM--보호자명
+, B.BOHOJAGWANGE-- ,보호자관계
+, B.BOHOJATEL-- ,보호자연락처
+, B.BOHOJAMOBILE-- ,보호자휴대폰
+, B.BOHOJAJUSO1
+, B.BOHOJAJUSO2-- ,보호자주소
+, A.GUNBEON--군번
+, DBO.GETDT(A.JEDAEDT) AS JEDAEDT-- ,제대일
+, DBO.GETCODENM('SBM04',A.GUNBYEOLGB) AS JEONGWONNAEOEGBNM
+, DBO.GETCODENM('SHJ02',A.BYEONGLYEOGGB) AS JEONGWONNAEOEGBNM-- ,군별/병력구분
+FROM SHJ_HAGJEOG_M AS A  --6396
+LEFT JOIN SHJ_JUSO_D B ON B.HAGBEON = A.HAGBEON  --6396
+LEFT JOIN SHJ_JEONJEOGHAGGYO_D C ON C.HAGBEON = A.HAGBEON  --6396
+LEFT JOIN (
+  SELECT
+    a.HAGBEON
+  , STRING_AGG(b.SANEOBCHENM +'('+ a.YY +'년'+a.HAGGI+'학기'+')', ',') GYEONGLYEOG
+  FROM SHJ_JAEJIKSANEOBCHE_H a --1164
+  inner join SIS_SANEOBCHE_M b on b.SANEOBCHESEQ = a.SANEOBCHECD  --1164
+  GROUP BY HAGBEON
+    ) D ON D.HAGBEON = A.HAGBEON  --6396
+--WHERE (A.HAGBEON = '200911131' OR A.NM = '기오두')
+WHERE A.HAGBEON = '200911131'
+
+-----------------------------------------------------학사-수강-학적관리-학적부조회---------------------------------------------------------------------------------------------
+
 
 
 
