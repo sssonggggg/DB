@@ -9,7 +9,7 @@
 --------------- FROM USER     줄간격띄우지않기 매쿼리(서브쿼리도)마다 주석작성하고 주석위치맞춰주기!!
 --------------- INNER JOIN ~~~~ AS B ON B. 먼저써주기
 ---------------  JOIN걸때도 키체크
----------------  WHERE 조건쓸때 테이블의 키갯수를 꼭 체크
+---------------  WHERE 조건쓸때 테이블의 키갯수를 꼭 체크.. F12눌러서 어떤값이넘어오는지도 체크
 ---------------  띄어쓸때 탭 노노 스페이스바 오키 띄워
 --------------- (A = 'B' OR A = 'C') 한칸씩띄어주기!! AND 나 OR 쓸때는()묶어주기기
 ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -300,7 +300,6 @@ INNER JOIN
     , SUM(CASE WHEN (CONVERT(INT, A.JEOMSU)) > 0 THEN A.JEOMSU ELSE 0 END) AS SANGJEOM      -- ,상점계
     , SUM(CASE WHEN (CONVERT(INT, A.JEOMSU)) < 0 THEN A.JEOMSU ELSE 0 END) AS BELJEOM       -- ,벌점계
     , SUM((CONVERT(INT, A.JEOMSU))) AS TOTAL                                                -- ,누계
-
     FROM SHS_SANGBEOL_M AS A
     GROUP BY  A.YY , A.HAGGI , A.HAGBEON
     ) AS E ON E.HAGBEON = A.HAGBEON AND E.YY = A.YY AND E.HAGGI = A.HAGGI     --8023
@@ -391,7 +390,7 @@ SELECT
 , A.REQUESTUSER                                                                                                               -- 요청자
 , B.PROGRAMNM                                                                                                                 -- 프로그램명
 , A.REQUESTDESC                                                                                                               -- 요청내용
-, (CASE WHEN A.SUPPORTDT != '' AND A.SUPPORTDT IS NOT NULL THEN '완료' ELSE '요청' END )  AS 상태                        -- 처리상태
+, (CASE WHEN A.SUPPORTDT != '' AND A.SUPPORTDT IS NOT NULL THEN '완료' ELSE '요청' END )  AS 상태                                -- 처리상태
 , A.SUPPORTDESC                                                                                                               -- 처리내용
 , (CASE WHEN A.SUPPORTDT != '' AND A.SUPPORTDT IS NOT NULL THEN CONVERT(CHAR(10), CONVERT (DATE, A.SUPPORTDT )) ELSE ''
     END) AS SUPPORTDT
@@ -808,24 +807,97 @@ INSERT INTO SSS_SILSEUBHAGCHUL_M (
 
 
 
------------------------------------------------------출석입력(pc용)개설강좌목록조회--------------------------------------------------------------------------------------------
+-----------------------------------------------------학사-수강-출석부-출석입력(pc용)개설강좌목록조회--------------------------------------------------------------------------------------------
 --과목코드,과목명,교수명,개설학과,개설학년,분반,학점,교시,수업시간,입력여부,저장시간,수업일자
 SELECT
-  A.GWAMOGCD        as [안  녕]                                                        --과목코드
-, A.GWAMOGNM                                                                  -- ,과목명
-, A.GYOSUNM                                                                 -- ,교수명
-, A.SOSOGNM                                                                  -- ,개설학과
-, A.HAGNYEON                                                                  -- ,개설학년
-, A.BUNBAN                                                                  -- ,분반
-, A.HAGJEOM                                                                  -- ,학점
-                                                                  -- ,교시
-                                                                  -- ,수업시간
-                                                                  -- ,입력여부
-                                                                  -- ,저장시간
-                                                                  -- ,수업일자
-FROM SSE_GAESEOLGANGJWA_V A  --3739
-INNER JOIN SSE_SIGANPYO_D B ON B.YY = A.YY AND B.HAGGI = A.HAGGI AND B.GWAMOGCD = A.GWAMOGCD
-                          AND B.SOSOGCD = A.SOSOGCD AND B.HAGNYEON = A.HAGNYEON AND B.BUNBAN = A.BUNBAN
+  A.YY
+, A.HAGGI
+, A.GWAMOGCD
+, B.GWAMOGNM
+, A.SOSOGCD
+, A.HAGNYEON
+, A.BUNBAN
+, B.DBGB
+FROM SSE_GAESEOLGANGJWA_M A
+INNER JOIN (
+    SELECT
+  C.YY
+, C.HAGGI
+, C.GWAMOGCD
+, D.GWAMOGNM
+, C.SOSOGCD
+, C.HAGNYEON
+, C.BUNBAN
+, C.DBGB
+, LEFT(STRING_AGG(C.GYOSIGB, '-'),2) + RIGHT(STRING_AGG(C.GYOSIGB, '-'),1) AS GYOSI
+, COUNT(1) AS SIGAN
+FROM SSE_SIGANPYO_D C  --20
+INNER JOIN SGG_GYOGWAMOGCODE_M D ON D.GWAMOGCD = C.GWAMOGCD  --20
+WHERE C.YY = '2019' AND C.HAGGI = '1' AND C.DBGB ='5'
+GROUP BY C.YY , C.HAGGI , C.HAGNYEON , C.BUNBAN , C.GWAMOGCD , C.BUNBAN , C.SOSOGCD , C.DBGB ,  D.GWAMOGNM
+    ) B ON B.YY = A.YY AND B.HAGGI = A.HAGGI AND B.HAGNYEON = A.HAGNYEON AND B.BUNBAN = A.BUNBAN AND B.SOSOGCD = A.SOSOGCD AND B.DBGB = '5'
+
+GROUP BY A.YY , A.HAGGI , A.HAGNYEON , A.BUNBAN , A.GWAMOGCD , A.BUNBAN , A.SOSOGCD , B.DBGB, B.GWAMOGNM
+
+
+--
+SELECT
+C.YY
+, C.HAGGI
+, C.GWAMOGCD
+, B.GWAMOGNM
+, C.SOSOGCD
+, B.SOSOGNM
+FROM SSE_GAESEOLGANGJWA_M C
+INNER JOIN(
+                    SELECT
+                  A.YY
+                , A.HAGGI
+                , A.GWAMOGCD
+                , B.GWAMOGNM
+                , A.SOSOGCD
+                , A.HAGNYEON
+                , A.BUNBAN
+                , A.DBGB
+                , F.SOSOGNM
+                , LEFT(STRING_AGG(A.GYOSIGB, '-'),2) + RIGHT(STRING_AGG(A.GYOSIGB, '-'),1) AS GYOSI
+                , COUNT(1) AS SIGAN
+                FROM SSE_SIGANPYO_D A  --20
+                INNER JOIN SGG_GYOGWAMOGCODE_M B ON B.GWAMOGCD = A.GWAMOGCD  --20
+                INNER JOIN COR_SOSOGCD_M F ON F.SOSOGCD = A.SOSOGCD
+                GROUP BY A.YY , A.HAGGI , A.HAGNYEON , A.BUNBAN , A.GWAMOGCD , A.BUNBAN , A.SOSOGCD , A.DBGB , B.GWAMOGNM, F.SOSOGNM
+    ) B ON B.YY = C.YY AND B.HAGGI = C.HAGGI AND B.HAGNYEON = C.HAGNYEON AND B.BUNBAN = C.BUNBAN AND B.SOSOGCD = C.SOSOGCD AND B.DBGB = '5'
+WHERE 1=1
+AND C.YY='2019'
+AND C.HAGGI='1'
+AND C.SOSOGCD='120'
+AND B.DBGB='5'
+
+
+----
+SELECT
+  A.YY
+, A.HAGGI
+, A.GWAMOGCD
+, B.GWAMOGNM
+, A.SOSOGCD
+, C.SOSOGNM
+, A.HAGNYEON
+, A.BUNBAN
+, A.DBGB
+, LEFT(STRING_AGG(A.GYOSIGB, '-'),2) + RIGHT(STRING_AGG(A.GYOSIGB, '-'),1) AS GYOSI, COUNT(1) AS SIGAN
+FROM SSE_SIGANPYO_D A --10
+INNER JOIN SGG_GYOGWAMOGCODE_M B ON B.GWAMOGCD = A.GWAMOGCD --10
+INNER JOIN COR_SOSOGCD_M C ON C.SOSOGCD = A.SOSOGCD
+WHERE 1=1
+AND A.YY='2019'
+AND A.HAGGI='1'
+AND A.DBGB='5'
+AND A.SOSOGCD='120'
+GROUP BY A.YY , A.HAGGI , A.HAGNYEON , A.BUNBAN , A.GWAMOGCD , A.BUNBAN , A.SOSOGCD , A.DBGB, B.GWAMOGNM, C.SOSOGNM
+
+
+
 --도저히모르겠어 나중에 실력쌓고다시하기
 -----------------------------------------------------출석입력(pc용)출석입력학생목록조회--------------------------------------------------------------------------------------------
 -----------------------------------------------------출석입력(pc용)개설강좌목록조회--------------------------------------------------------------------------------------------
@@ -890,7 +962,7 @@ LEFT JOIN (
     a.HAGBEON
   , STRING_AGG(b.SANEOBCHENM +'('+ a.YY +'년'+a.HAGGI+'학기'+')', ',') GYEONGLYEOG
   FROM SHJ_JAEJIKSANEOBCHE_H a --1164
-  inner join SIS_SANEOBCHE_M b on b.SANEOBCHESEQ = a.SANEOBCHECD  --1164
+  INNER JOIN SIS_SANEOBCHE_M B ON B.SANEOBCHESEQ = A.SANEOBCHECD  --1164
   GROUP BY HAGBEON
     ) D ON D.HAGBEON = A.HAGBEON  --6396
 --WHERE (A.HAGBEON = '200911131' OR A.NM = '기오두')
@@ -912,17 +984,85 @@ SELECT
 , DBO.GETDT(A.JEOBSUTODT)           AS JEOBSUTODT               -- ,접수종료일
 , FORMAT(A.SUGANGAMT, '#,#0')            AS SUGANGAMT                            -- ,수강료
 FROM STB_GWAJEONG_M A  --24
-INNER JOIN STB_GWAJEONGCD_M B ON B.JUNGBUNLYUCD = A.JUNGBUNLYUCD  --24  XXX
+INNER JOIN STB_GWAJEONGCD_M B ON B.JUNGBUNLYUCD = A.JUNGBUNLYUCD
 INNER JOIN STB_GWAJEONGCD_M C ON C.JUNGBUNLYUCD ='$' AND C.DAEBUNLYUCD = A.DAEBUNLYUCD  --24
 WHERE 1=1
 AND A.YY = '2018'
 AND A.HAGGI = '2'
-AND (A.DAEBUNLYUCD = LEFT('0104',2) AND A.JUNGBUNLYUCD = '0104')                  -- XX
+AND (A.DAEBUNLYUCD = LEFT('0104',2) AND A.JUNGBUNLYUCD = '0104')
 AND A.GWAJEONGNM LIKE '%노사%'
 
 
 
+-------------------------------------------------학생이력-상담관리-면담결과관리------------------------------------------------
+--상태,상담구분,학번,성명,학과,상담일,상담자,요청내용,상담내용,비공개,온라인
+SELECT
+  (CASE WHEN (A.NAEYONG <> '' AND A.NAEYONG IS NOT NULL) THEN '완료' ELSE '예약' END) AS SANGTAE--상태
+, DBO.GETCODENM('005',A.JINHAENGGB) AS SANGDAMGB-- ,상담구분
+, A.HAGBEON-- ,학번
+, B.NM-- ,성명
+, C.SOSOGNM-- ,학과
+, DBO.GETDT(A.JINHAENGDT)-- ,상담일
+, A.JINHAENGJA-- ,상담자
+, D.USERNM
+, A.REQNAEYONG-- ,요청내용
+, A.NAEYONG-- ,상담내용
+, A.BIGONGGAEYN-- ,비공개
+, A.ONLINEYN-- ,온라인
+FROM SCE_JINHAENG_M A  --3
+INNER JOIN SHJ_HAGJEOG_M B ON B.HAGBEON = A.HAGBEON  --3
+INNER JOIN COR_SOSOGCD_M C ON C.SOSOGCD = B.SOSOGCD  --3
+LEFT JOIN COR_USER_M D ON D.USERID = A.JINHAENGJA
+WHERE 1=1
+AND A.JINHAENGDT BETWEEN REPLACE('2019-01-01','-','') AND REPLACE('2021-08-04','-','')
+AND A.JINHAENGJA = 'papi'
+AND (A.TIMEGB IS NOT NULL AND A.TIMEGB <> '')
 
+
+-----------------------------------------------------------학생이력-학생이력관리-학생이력(자격증)----------------------------------------
+--상태,이력구분,분류,제목,기관,취득일,증빙여부,마일리지
+SELECT
+  (CASE WHEN A.SEUNGDT IS NOT NULL THEN '승인' ELSE '승인대기' END) AS SANGTAE--상태
+, DBO.GETCODENM('SHE11',A.BUNYAGB) AS IRYEOKGBNM-- ,이력구분
+, DBO.GETCODENM('SHE12',A.BUNYADGB) AS BUNRYU -- ,분류
+, A.PROGRAMNM-- ,제목
+, A.GIGWAN-- ,기관
+, CONVERT(CHAR(10), CONVERT (DATE, A.SINDT )) AS SINDT-- ,취득일
+, (CASE WHEN A.FILEPATH IS NOT NULL THEN 'Y' ELSE 'N' END) AS JUNGBING-- ,증빙여부
+, A.MILEAGE-- ,마일리지
+FROM SHS_IRYEOK_M A --8
+WHERE 1=1
+AND A.BUNYAGB ='10'
+AND A.SINDT BETWEEN REPLACE('2019-01-01','-','') AND REPLACE('2021-08-04','-','')
+
+----------------------------------------------------
+--신청연도,자격증구분,신청자수,승인자수
+SELECT
+  LEFT(A.SINDT ,4) AS SINYY-- 신청년도
+, DBO.GETCODENM('SHE12',A.BUNYADGB) AS BUNRYU-- 자격증구분
+, COUNT(A.SINDT) AS SINSU-- 신청자수
+, COUNT(A.SEUNGDT) AS SUNSU-- 승인자수
+FROM SHS_IRYEOK_M A
+WHERE A.BUNYAGB='10'
+GROUP BY LEFT(A.SINDT,4) , A.BUNYADGB HAVING COUNT(A.BUNYADGB) > 1
+
+
+
+-------------------------------------------------------동아리활동학생--------------------------------------------------------------------
+SELECT
+  A.YY
+, A.DONGALICD
+, B.DONGALINM
+, C.NM
+, A.JIGCHAEGGB
+, DBO.GETCODENM('SHS05',A.JIGCHAEGGB) AS JIGCHAEGGBNM
+, D.CODENAME
+FROM SHS_DONGALI_D A --1281
+INNER JOIN SHS_DONGALI_M B ON B.DONGALICD = A.DONGALICD  --1281
+INNER JOIN SHJ_HAGJEOG_M C ON C.HAGBEON = A.HAGBEON  --1281
+LEFT JOIN COR_BASECODE_M D ON D.GROUPCODE='SHS05' AND D.SUBCODE=A.JIGCHAEGGB
+WHERE A.YY='2014'
+ORDER BY A.JIGCHAEGGB
 
 
 
