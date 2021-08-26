@@ -1,0 +1,761 @@
+SELECT  DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 - 1, 1) AS 저번주월요일날짜
+SELECT  DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)     AS 이번주월요일날짜
+SELECT  DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 + 1, 0) AS 다음주월요일날짜
+---------------
+SELECT  (CONVERT(CHAR(10), (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)), 23)) + '~' + RIGHT((CONVERT(CHAR(10), (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)), 23)),5)
+SELECT RIGHT((CONVERT(CHAR(10), (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)), 23)),5)
+SELECT (CONVERT(CHAR(10), DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0) , 23))
+--------------
+
+
+
+
+---------------
+SELECT  DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)
+SELECT (CONVERT(CHAR(10), (SELECT  DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)), 23))+'~'+ SUBSTRING((CONVERT(CHAR(10), (SELECT  DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)), 23)),9,2) AS DATE
+
+---------
+SELECT
+  (CONVERT(CHAR(10), (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)), 23))+'~'+ SUBSTRING((CONVERT(CHAR(10), (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)), 23)),9,2) AS WEEKDAY
+, (CONVERT(CHAR(10), A.WP_DT, 23)) AS TODAY
+, (CASE WHEN (DATENAME(DW, A.WP_DT)) = '월요일' THEN 'MON'
+        WHEN (DATENAME(DW, A.WP_DT)) = '화요일' THEN 'TUE'
+        WHEN (DATENAME(DW, A.WP_DT)) = '수요일' THEN 'WED'
+        WHEN (DATENAME(DW, A.WP_DT)) = '목요일' THEN 'THU'
+        WHEN (DATENAME(DW, A.WP_DT)) = '금요일' THEN 'FRI'
+        WHEN (DATENAME(DW, A.WP_DT)) = '토요일' THEN 'SAT'
+        WHEN (DATENAME(DW, A.WP_DT)) = '일요일' THEN 'SUN' END) AS YOIL
+, B.NAME AS NAME
+, DBO.GETCODENM(A.C1SUBJECTCODE) AS SUBJECTCODENM1
+, DBO.GETCODENM(A.C2SUBJECTCODE) AS SUBJECTCODENM2
+, DBO.GETCODENM(A.C3SUBJECTCODE) AS SUBJECTCODENM3
+, DBO.GETCODENM(A.C4SUBJECTCODE) AS SUBJECTCODENM4
+, DBO.GETCODENM(A.C5SUBJECTCODE) AS SUBJECTCODENM5
+, DBO.GETCODENM(A.C6SUBJECTCODE) AS SUBJECTCODENM6
+, DBO.GETCODENM(A.C7SUBJECTCODE) AS SUBJECTCODENM7
+, DBO.GETCODENM(A.C8SUBJECTCODE) AS SUBJECTCODENM8
+, DBO.GETCODENM(A.C9SUBJECTCODE) AS SUBJECTCODENM9
+, A.C1DETAIL
+, A.C2DETAIL
+, A.C3DETAIL
+, A.C4DETAIL
+, A.C5DETAIL
+, A.C6DETAIL
+, A.C7DETAIL
+, A.C8DETAIL
+, A.C9DETAIL
+, A.C1SATISFACTION
+, A.C2SATISFACTION
+, A.C3SATISFACTION
+, A.C4SATISFACTION
+, A.C5SATISFACTION
+, A.C6SATISFACTION
+, A.C7SATISFACTION
+, A.C8SATISFACTION
+, A.C9SATISFACTION
+, A.C1SATISFACTIONDT
+, A.C2SATISFACTIONDT
+, A.C3SATISFACTIONDT
+, A.C4SATISFACTIONDT
+, A.C5SATISFACTIONDT
+, A.C6SATISFACTIONDT
+, A.C7SATISFACTIONDT
+, A.C8SATISFACTIONDT
+, A.C9SATISFACTIONDT
+
+FROM WEEKPLAN A
+INNER JOIN MEMBER B ON B.MEMBER_CD = A.MEMBER_CD
+WHERE WP_DT BETWEEN (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)) AND (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6))
+--------
+SELECT *
+FROM ASSESSMENT
+WHERE AM_DT BETWEEN (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)) AND (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+------------------
+
+
+SELECT STRING_AGG(SCORE, '-'),2 FROM ASSESSMENT
+
+
+
+
+---------
+DECLARE @count INT
+SET @count = 0
+WHILE @count <7
+BEGIN
+    IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , @count)) AND (MEMBER_CD = '3'))
+        BEGIN UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , @count)) AND (MEMBER_CD = '3') END
+    ELSE
+        BEGIN INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , @count),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','') END
+    SET @count = @count+1
+END
+
+
+-----------
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 1)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 1)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 1),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 2)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 2)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 2),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 3)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 3)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 3),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 4)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 4)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 4),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 5)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 5)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 5),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 1)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 1)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 1),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 2)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 2)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 2),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 3)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 3)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 3),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 4)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 4)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 4),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 5)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 5)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 5),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)) AND (MEMBER_CD = '3'))
+    BEGIN
+       UPDATE WEEKPLAN SET AA='1' WHERE (WP_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)) AND (MEMBER_CD = '3')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKPLAN VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6),'','','','','','','','','',3,'','','','','','','','','','','','','','','','','','','','','','','','','','','','')
+    END
+---------------
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0), 3 , 1 , '' , 0 , '본사', '')
+    END
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0), 3 , 1 , '' , 0 , '지사', '')
+    END
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 1)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 1)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 1), 3 , 1 , '' , 0 , '본사', '')
+    END
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 1)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 1)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 1), 3 , 1 , '' , 0 , '지사', '')
+    END
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 2)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 2)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 2), 3 , 1 , '' , 0 , '본사', '')
+    END
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 2)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 2)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 2), 3 , 1 , '' , 0 , '지사', '')
+    END
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 3)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 3)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 3), 3 , 1 , '' , 0 , '본사', '')
+    END
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 3)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 3)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 3), 3 , 1 , '' , 0 , '지사', '')
+    END
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 4)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 4)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 4), 3 , 1 , '' , 0 , '본사', '')
+    END
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 4)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 4)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 4), 3 , 1 , '' , 0 , '지사', '')
+    END
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 5)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 5)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 5), 3 , 1 , '' , 0 , '본사', '')
+    END
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 5)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 5)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 5), 3 , 1 , '' , 0 , '지사', '')
+    END
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '본사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6), 3 , 1 , '' , 0 , '본사', '')
+    END
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사'))
+    BEGIN
+       UPDATE ASSESSMENT SET AA='1' WHERE (AM_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)) AND (MEMBER_CD = '3') AND (PMEMBERTYPE = '지사')
+    END
+ELSE
+    BEGIN
+        INSERT INTO ASSESSMENT VALUES (DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6), 3 , 1 , '' , 0 , '지사', '')
+    END
+IF EXISTS(SELECT WG_DT FROM WEEKGAOL WHERE(WG_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7, 0)) AND(MEMBER_CD = '"+strCD+"'))
+    BEGIN
+       UPDATE WEEKGAOL SET AA = '1' WHERE(WG_DT = DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7, 0)) AND(MEMBER_CD = '"+strCD+"')
+    END
+ELSE
+    BEGIN
+        INSERT INTO WEEKGAOL VALUES("+strCD+", DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7, 0), '', '')
+    END
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------
+SELECT
+  CONVERT(CHAR(10), DATEADD(D, NUMBER, DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)), 23) AS TODAY
+, ISNULL((CASE WHEN DATENAME(DW, CONVERT(CHAR(10), DATEADD(D, NUMBER, DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)), 23))= '월요일' THEN 'MON'
+               WHEN DATENAME(DW, CONVERT(CHAR(10), DATEADD(D, NUMBER, DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)), 23))= '화요일' THEN 'TUE'
+               WHEN DATENAME(DW, CONVERT(CHAR(10), DATEADD(D, NUMBER, DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)), 23))= '수요일' THEN 'WED'
+               WHEN DATENAME(DW, CONVERT(CHAR(10), DATEADD(D, NUMBER, DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)), 23))= '목요일' THEN 'THU'
+               WHEN DATENAME(DW, CONVERT(CHAR(10), DATEADD(D, NUMBER, DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)), 23))= '금요일' THEN 'FRI'
+               WHEN DATENAME(DW, CONVERT(CHAR(10), DATEADD(D, NUMBER, DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)), 23))= '토요일' THEN 'SAT'
+               WHEN DATENAME(DW, CONVERT(CHAR(10), DATEADD(D, NUMBER, DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)), 23))= '일요일' THEN 'SUN' END),'') AS YOIL
+
+, ISNULL(DBO.GETCODENM(A.C1SUBJECTCODE),'') AS SUBJECTCODENM1
+, ISNULL(DBO.GETCODENM(A.C2SUBJECTCODE),'') AS SUBJECTCODENM2
+, ISNULL(DBO.GETCODENM(A.C3SUBJECTCODE),'') AS SUBJECTCODENM3
+, ISNULL(DBO.GETCODENM(A.C4SUBJECTCODE),'') AS SUBJECTCODENM4
+, ISNULL(DBO.GETCODENM(A.C5SUBJECTCODE),'') AS SUBJECTCODENM5
+, ISNULL(DBO.GETCODENM(A.C6SUBJECTCODE),'') AS SUBJECTCODENM6
+, ISNULL(DBO.GETCODENM(A.C7SUBJECTCODE),'') AS SUBJECTCODENM7
+, ISNULL(DBO.GETCODENM(A.C8SUBJECTCODE),'') AS SUBJECTCODENM8
+, ISNULL(DBO.GETCODENM(A.C9SUBJECTCODE),'') AS SUBJECTCODENM9
+, ISNULL(A.C1DETAIL,'') AS C1DETAIL
+, ISNULL(A.C2DETAIL,'') AS C2DETAIL
+, ISNULL(A.C3DETAIL,'') AS C3DETAIL
+, ISNULL(A.C4DETAIL,'') AS C4DETAIL
+, ISNULL(A.C5DETAIL,'') AS C5DETAIL
+, ISNULL(A.C6DETAIL,'') AS C6DETAIL
+, ISNULL(A.C7DETAIL,'') AS C7DETAIL
+, ISNULL(A.C8DETAIL,'') AS C8DETAIL
+, ISNULL(A.C9DETAIL,'') AS C9DETAIL
+, ISNULL(A.C1SATISFACTION,'') AS C1SATISFACTION
+, ISNULL(A.C2SATISFACTION,'') AS C2SATISFACTION
+, ISNULL(A.C3SATISFACTION,'') AS C3SATISFACTION
+, ISNULL(A.C4SATISFACTION,'') AS C4SATISFACTION
+, ISNULL(A.C5SATISFACTION,'') AS C5SATISFACTION
+, ISNULL(A.C6SATISFACTION,'') AS C6SATISFACTION
+, ISNULL(A.C7SATISFACTION,'') AS C7SATISFACTION
+, ISNULL(A.C8SATISFACTION,'') AS C8SATISFACTION
+, ISNULL(A.C9SATISFACTION,'') AS C9SATISFACTION
+, ISNULL(A.C1SATISFACTIONDT,'') AS C1SATISFACTIONDT
+, ISNULL(A.C2SATISFACTIONDT,'') AS C2SATISFACTIONDT
+, ISNULL(A.C3SATISFACTIONDT,'') AS C3SATISFACTIONDT
+, ISNULL(A.C4SATISFACTIONDT,'') AS C4SATISFACTIONDT
+, ISNULL(A.C5SATISFACTIONDT,'') AS C5SATISFACTIONDT
+, ISNULL(A.C6SATISFACTIONDT,'') AS C6SATISFACTIONDT
+, ISNULL(A.C7SATISFACTIONDT,'') AS C7SATISFACTIONDT
+, ISNULL(A.C8SATISFACTIONDT,'') AS C8SATISFACTIONDT
+, ISNULL(A.C9SATISFACTIONDT,'') AS C9SATISFACTIONDT
+, ISNULL(E.NAME,'') AS BONNM
+, ISNULL(B.SCORE,'') AS BONSCORE
+, ISNULL('('+B.PMEMBERTYPE+')','') AS BONTYPE
+, ISNULL(B.ASSESS,'평가중입니다') AS BONASS
+, ISNULL(F.NAME,'') AS JINM
+, ISNULL(C.SCORE,'') AS JISCORE
+, ISNULL('('+C.PMEMBERTYPE+')','') AS BONTYPE
+, ISNULL(C.ASSESS ,'평가중입니다') AS JIASS
+
+FROM MASTER..SPT_VALUES D
+LEFT JOIN WEEKPLAN A ON A.WP_DT = CONVERT(VARCHAR, DATEADD(D, NUMBER, DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0)), 112) AND A.MEMBER_CD = 3
+LEFT JOIN ASSESSMENT B ON B.MEMBER_CD = 3 AND B.AM_DT = A.WP_DT AND B.PMEMBERTYPE = '본사'
+LEFT JOIN ASSESSMENT C ON C.MEMBER_CD = 3 AND C.AM_DT = A.WP_DT AND C.PMEMBERTYPE = '지사'
+LEFT JOIN MEMBER E ON E.MEMBER_CD = B.PMEMBER_CD
+LEFT JOIN MEMBER F ON F.MEMBER_CD = C.PMEMBER_CD
+WHERE 1=1
+AND D.TYPE = 'P'
+AND NUMBER <= DATEDIFF(D, DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 0) , DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)  )
+-----
+
+
+--------------------------------------------------------------------------------------------
+
+---
+IF EXISTS(SELECT DDAY_DT FROM DDAY WHERE (MEMBER_CD = '3') AND (DDAY_DT > GETDATE()))
+    BEGIN
+        SELECT
+          ISNULL((CONVERT(CHAR(10), DDAY_DT, 23)),'') AS DDAY
+        , ISNULL(DDAY_TITLE,'') AS DDAY_TITLE
+        , 'D' + '-' + ISNULL(CONVERT(VARCHAR(50),(DATEDIFF(DAY, GETDATE(), (CONVERT(CHAR(10), DDAY_DT, 23))))),'')   AS CALDDAY
+        FROM DDAY
+        WHERE (DDAY_DT > GETDATE()) AND (MEMBER_CD = '3')
+        ORDER BY DDAY_DT
+
+    END
+ELSE
+    BEGIN
+        SELECT
+          '' AS DDAY
+        , '' AS DDAY_TITLE
+        , '' AS CALDDAY
+    END
+-------------------------------------------------------------------------
+
+
+---------------
+IF EXISTS(SELECT WG_DT FROM WEEKGAOL WHERE MEMBER_CD = '4' AND WG_DT > DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 - 1, 1))
+    BEGIN
+        SELECT
+          (CONVERT(VARCHAR(30),DATEDIFF(week, DATEADD(MONTH, DATEDIFF(MONTH, 0, convert(varchar(10),DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6),120)), 0),convert(varchar(10),getdate(),120)) +1)) + '주차 목표:'+ISNULL(A.WG_TITLE,'')
+          AS WEEKGAOL
+        FROM WEEKGAOL A
+        WHERE 1=1
+        AND A.MEMBER_CD = '4'
+        AND  A.WG_DT BETWEEN DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 - 1, 1) AND DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6)
+    END
+ELSE
+    BEGIN
+        SELECT
+          (CONVERT(VARCHAR(30),DATEDIFF(week, DATEADD(MONTH, DATEDIFF(MONTH, 0, convert(varchar(10),DATEADD(wk, DATEDIFF(d, 0, getdate()) / 7 , 6),120)), 0),convert(varchar(10),getdate(),120)) +1)) + '주차 목표: ' AS WEEKGAOL
+    END
+--------------
+SELECT
+CONVERT(CHAR(10),WP_DT,23)
+,ISNULL(C1DETAIL,'') AS C1DETAIL
+,ISNULL(C2DETAIL,'') AS C2DETAIL
+,ISNULL(C3DETAIL,'') AS C3DETAIL
+,ISNULL(C4DETAIL,'') AS C4DETAIL
+,ISNULL(C5DETAIL,'') AS C5DETAIL
+,ISNULL(C6DETAIL,'') AS C6DETAIL
+,ISNULL(C7DETAIL,'') AS C7DETAIL
+,ISNULL(C8DETAIL,'') AS C8DETAIL
+,ISNULL(C9DETAIL,'') AS C9DETAIL
+,ISNULL(MEMBER_CD,'') AS MEMBER_CD
+,ISNULL(C1SATISFACTION,'') AS C1SATISFACTION
+,ISNULL(C2SATISFACTION,'') AS C2SATISFACTION
+,ISNULL(C3SATISFACTION,'') AS C3SATISFACTION
+,ISNULL(C4SATISFACTION,'') AS C4SATISFACTION
+,ISNULL(C5SATISFACTION,'') AS C5SATISFACTION
+,ISNULL(C6SATISFACTION,'') AS C6SATISFACTION
+,ISNULL(C7SATISFACTION,'') AS C7SATISFACTION
+,ISNULL(C8SATISFACTION,'') AS C8SATISFACTION
+,ISNULL(C9SATISFACTION,'') AS C9SATISFACTION
+,ISNULL(C1SUBJECTCODE,'') AS C1SUBJECTCODE
+,ISNULL(C2SUBJECTCODE,'') AS C2SUBJECTCODE
+,ISNULL(C3SUBJECTCODE,'') AS C3SUBJECTCODE
+,ISNULL(C4SUBJECTCODE,'') AS C4SUBJECTCODE
+,ISNULL(C5SUBJECTCODE,'') AS C5SUBJECTCODE
+,ISNULL(C6SUBJECTCODE,'') AS C6SUBJECTCODE
+,ISNULL(C7SUBJECTCODE,'') AS C7SUBJECTCODE
+,ISNULL(C8SUBJECTCODE,'') AS C8SUBJECTCODE
+,ISNULL(C9SUBJECTCODE,'') AS C9SUBJECTCODE
+,ISNULL(C1SATISFACTIONDT,'') AS C1SATISFACTIONDT
+,ISNULL(C2SATISFACTIONDT,'') AS C2SATISFACTIONDT
+,ISNULL(C3SATISFACTIONDT,'') AS C3SATISFACTIONDT
+,ISNULL(C4SATISFACTIONDT,'') AS C4SATISFACTIONDT
+,ISNULL(C5SATISFACTIONDT,'') AS C5SATISFACTIONDT
+,ISNULL(C6SATISFACTIONDT,'') AS C6SATISFACTIONDT
+,ISNULL(C7SATISFACTIONDT,'') AS C7SATISFACTIONDT
+,ISNULL(C8SATISFACTIONDT,'') AS C8SATISFACTIONDT
+,ISNULL(C9SATISFACTIONDT,'') AS C9SATISFACTIONDT
+FROM WEEKPLAN
+WHERE MEMBER_CD='4' AND WP_DT='2021-08-11'
+------
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE MEMBER_CD = '3' AND WP_DT='2021-08-11')
+    BEGIN
+        SELECT
+            CONVERT(CHAR(10),WP_DT,23) AS TODAY
+            ,ISNULL(A.C1DETAIL,'') AS C1DETAIL
+            ,ISNULL(A.C2DETAIL,'') AS C2DETAIL
+            ,ISNULL(A.C3DETAIL,'') AS C3DETAIL
+            ,ISNULL(A.C4DETAIL,'') AS C4DETAIL
+            ,ISNULL(A.C5DETAIL,'') AS C5DETAIL
+            ,ISNULL(A.C6DETAIL,'') AS C6DETAIL
+            ,ISNULL(A.C7DETAIL,'') AS C7DETAIL
+            ,ISNULL(A.C8DETAIL,'') AS C8DETAIL
+            ,ISNULL(A.C9DETAIL,'') AS C9DETAIL
+            ,ISNULL(B.NAME,'') AS NAME
+            ,ISNULL(A.C1SATISFACTION,'') AS C1SATISFACTION
+            ,ISNULL(A.C2SATISFACTION,'') AS C2SATISFACTION
+            ,ISNULL(A.C3SATISFACTION,'') AS C3SATISFACTION
+            ,ISNULL(A.C4SATISFACTION,'') AS C4SATISFACTION
+            ,ISNULL(A.C5SATISFACTION,'') AS C5SATISFACTION
+            ,ISNULL(A.C6SATISFACTION,'') AS C6SATISFACTION
+            ,ISNULL(A.C7SATISFACTION,'') AS C7SATISFACTION
+            ,ISNULL(A.C8SATISFACTION,'') AS C8SATISFACTION
+            ,ISNULL(A.C9SATISFACTION,'') AS C9SATISFACTION
+            ,ISNULL(A.C1SUBJECTCODE,'') AS C1SUBJECTCODE
+            ,ISNULL(A.C2SUBJECTCODE,'') AS C2SUBJECTCODE
+            ,ISNULL(A.C3SUBJECTCODE,'') AS C3SUBJECTCODE
+            ,ISNULL(A.C4SUBJECTCODE,'') AS C4SUBJECTCODE
+            ,ISNULL(A.C5SUBJECTCODE,'') AS C5SUBJECTCODE
+            ,ISNULL(A.C6SUBJECTCODE,'') AS C6SUBJECTCODE
+            ,ISNULL(A.C7SUBJECTCODE,'') AS C7SUBJECTCODE
+            ,ISNULL(A.C8SUBJECTCODE,'') AS C8SUBJECTCODE
+            ,ISNULL(A.C9SUBJECTCODE,'') AS C9SUBJECTCODE
+            ,ISNULL(A.C1SATISFACTIONDT,'') AS C1SATISFACTIONDT
+            ,ISNULL(A.C2SATISFACTIONDT,'') AS C2SATISFACTIONDT
+            ,ISNULL(A.C3SATISFACTIONDT,'') AS C3SATISFACTIONDT
+            ,ISNULL(A.C4SATISFACTIONDT,'') AS C4SATISFACTIONDT
+            ,ISNULL(A.C5SATISFACTIONDT,'') AS C5SATISFACTIONDT
+            ,ISNULL(A.C6SATISFACTIONDT,'') AS C6SATISFACTIONDT
+            ,ISNULL(A.C7SATISFACTIONDT,'') AS C7SATISFACTIONDT
+            ,ISNULL(A.C8SATISFACTIONDT,'') AS C8SATISFACTIONDT
+            ,ISNULL(A.C9SATISFACTIONDT,'') AS C9SATISFACTIONDT
+            FROM WEEKPLAN A
+            INNER JOIN MEMBER B ON B.MEMBER_CD = A.MEMBER_CD
+            WHERE A.MEMBER_CD='3' AND A.WP_DT='2021-08-11'
+    END
+ELSE
+    BEGIN
+        SELECT
+            '2021-08-11' AS TODAY
+            ,''AS C1DETAIL
+            ,''AS C2DETAIL
+            ,''AS C3DETAIL
+            ,''AS C4DETAIL
+            ,''AS C5DETAIL
+            ,''AS C6DETAIL
+            ,''AS C7DETAIL
+            ,''AS C8DETAIL
+            ,''AS C9DETAIL
+            ,'송동준' AS NAME
+            ,'' AS C1SATISFACTION
+            ,'' AS C2SATISFACTION
+            ,'' AS C3SATISFACTION
+            ,'' AS C4SATISFACTION
+            ,'' AS C5SATISFACTION
+            ,'' AS C6SATISFACTION
+            ,'' AS C7SATISFACTION
+            ,'' AS C8SATISFACTION
+            ,'' AS C9SATISFACTION
+            ,'' AS C1SUBJECTCODE
+            ,'' AS C2SUBJECTCODE
+            ,'' AS C3SUBJECTCODE
+            ,'' AS C4SUBJECTCODE
+            ,'' AS C5SUBJECTCODE
+            ,'' AS C6SUBJECTCODE
+            ,'' AS C7SUBJECTCODE
+            ,'' AS C8SUBJECTCODE
+            ,'' AS C9SUBJECTCODE
+            ,'' AS C1SATISFACTIONDT
+            ,'' AS C2SATISFACTIONDT
+            ,'' AS C3SATISFACTIONDT
+            ,'' AS C4SATISFACTIONDT
+            ,'' AS C5SATISFACTIONDT
+            ,'' AS C6SATISFACTIONDT
+            ,'' AS C7SATISFACTIONDT
+            ,'' AS C8SATISFACTIONDT
+            ,'' AS C9SATISFACTIONDT
+    END
+------------------------------------------------------
+IF EXISTS(SELECT WP_DT FROM WEEKPLAN WHERE MEMBER_CD = '3' AND WP_DT='2021-08-16')
+    BEGIN
+        UPDATE WEEKPLAN SET
+
+            C1DETAIL                           = 'A'
+           , C2DETAIL                           = 'B'
+           , C3DETAIL                           = 'C'
+           , C4DETAIL                           = 'A'
+           , C5DETAIL                           = 'B'
+           , C6DETAIL                           = 'C'
+           , C7DETAIL                           = 'A'
+           , C8DETAIL                           = 'B'
+           , C9DETAIL                           = 'C'
+           , MEMBER_CD                          = '3'
+           , C1SATISFACTION                     = ''
+           , C2SATISFACTION                     = ''
+           , C3SATISFACTION                     = ''
+           , C4SATISFACTION                     = ''
+           , C5SATISFACTION                     = ''
+           , C6SATISFACTION                     = ''
+           , C7SATISFACTION                     = ''
+           , C8SATISFACTION                     = ''
+           , C9SATISFACTION                     = ''
+           , C1SUBJECTCODE                      = '1'
+           , C2SUBJECTCODE                      = '1'
+           , C3SUBJECTCODE                      = '1'
+           , C4SUBJECTCODE                      = '1'
+           , C5SUBJECTCODE                      = '1'
+           , C6SUBJECTCODE                      = '1'
+           , C7SUBJECTCODE                      = '1'
+           , C8SUBJECTCODE                      = '1'
+           , C9SUBJECTCODE                      = '1'
+           , C1SATISFACTIONDT                  = '1'
+           , C2SATISFACTIONDT                   ='1'
+           , C3SATISFACTIONDT                   ='1'
+           , C4SATISFACTIONDT                   ='1'
+           , C5SATISFACTIONDT                   ='1'
+           , C6SATISFACTIONDT                   ='1'
+           , C7SATISFACTIONDT                   ='1'
+           , C8SATISFACTIONDT                   ='1'
+           , C9SATISFACTIONDT                   ='1'
+        FROM WEEKPLAN WHERE MEMBER_CD = '3' AND WP_DT='2021-08-16'
+      END
+ELSE
+    BEGIN
+INSERT INTO WEEKPLAN (
+  WP_DT
+, C1DETAIL
+, C2DETAIL
+, C3DETAIL
+, C4DETAIL
+, C5DETAIL
+, C6DETAIL
+, C7DETAIL
+, C8DETAIL
+, C9DETAIL
+, MEMBER_CD
+, C1SATISFACTION
+, C2SATISFACTION
+, C3SATISFACTION
+, C4SATISFACTION
+, C5SATISFACTION
+, C6SATISFACTION
+, C7SATISFACTION
+, C8SATISFACTION
+, C9SATISFACTION
+, C1SUBJECTCODE
+, C2SUBJECTCODE
+, C3SUBJECTCODE
+, C4SUBJECTCODE
+, C5SUBJECTCODE
+, C6SUBJECTCODE
+, C7SUBJECTCODE
+, C8SUBJECTCODE
+, C9SUBJECTCODE
+, C1SATISFACTIONDT
+, C2SATISFACTIONDT
+, C3SATISFACTIONDT
+, C4SATISFACTIONDT
+, C5SATISFACTIONDT
+, C6SATISFACTIONDT
+, C7SATISFACTIONDT
+, C8SATISFACTIONDT
+, C9SATISFACTIONDT
+ ) VALUES (
+  '2021-08-16'
+, 'A'
+, 'B'
+, 'C'
+, 'A'
+, 'B'
+, 'C'
+, 'A'
+, 'B'
+, 'C'
+, '3'
+, ''
+, ''
+, ''
+, ''
+, ''
+, ''
+, ''
+, ''
+, ''
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+, '1'
+          )
+          END
+
+
+select CONVERT (DATEtime, '2021-08-17')
+----
+DELETE WEEKPLAN WHERE MEMBER_CD='3' AND WP_DT='2021-08-16'
+----
+IF EXISTS(SELECT AM_DT FROM ASSESSMENT A WHERE A.MEMBER_CD = '3' AND A.AM_DT= '2021-08-17')
+BEGIN
+SELECT
+  ISNULL(CONVERT(CHAR(10),A.AM_DT,23),'') AS AM_DT
+, ISNULL(B.NAME,'') AS NAME
+, ISNULL(C.NAME,'') AS PNAME
+, ISNULL(A.PMEMBERTYPE,'') AS PMEMBERTYPE
+, ISNULL(CONVERT(VARCHAR(50),A.SCORE),0) AS SCORE
+, ISNULL(A.ASSESS,'평가중입니다') AS ASSESS
+FROM ASSESSMENT A
+INNER JOIN MEMBER B on B.MEMBER_CD = A.MEMBER_CD
+INNER JOIN MEMBER C on C.MEMBER_CD = A.PMEMBER_CD
+WHERE A.MEMBER_CD = '3' AND AM_DT = '2021-08-17'
+END
+ELSE
+BEGIN
+    SELECT
+    '2021-08-17' AS AM_DT
+    ,'송동준' AS NAME
+    ,'' AS PNAME
+    ,'' AS PMEMBERTYPE
+    ,0 AS SCORE
+    ,'평가중입니다' AS ASSESS
+
+end
+---
+SELECT
+(CONVERT(VARCHAR(30), DATEDIFF(week, DATEADD(MONTH, DATEDIFF(MONTH, 0, convert(varchar(10), DATEADD(wk, DATEDIFF(d, 0, '2021-09-06') / 7, 6), 120)), 0)
+    , convert(varchar(10), '2021-09-06', 120)) + 1)) + '주차 목표: ' AS WEEKGAOL
+----
+ IF EXISTS(SELECT WG_DT FROM WEEKGAOL WHERE MEMBER_CD = '3' AND WG_DT = DATEADD(wk, DATEDIFF(d, 0, '2021-07-26') / 7 - 1, 1))
+    BEGIN
+        SELECT
+          (CONVERT(VARCHAR(30), DATEDIFF(week, DATEADD(MONTH, DATEDIFF(MONTH, 0, convert(varchar(10),
+          DATEADD(wk, DATEDIFF(d, 0, '2021-07-26') / 7, 6), 120)), 0), convert(varchar(10), '2021-07-26', 120)) + 1)) + '주차 목표:' + ISNULL(A.WG_TITLE, '')
+          AS WEEKGAOL
+        FROM WEEKGAOL A
+        WHERE 1 = 1
+        AND A.MEMBER_CD = '3'
+        AND A.WG_DT BETWEEN DATEADD(wk, DATEDIFF(d, 0, '2021-07-26') / 7 - 1, 1) AND DATEADD(wk, DATEDIFF(d, 0, '2021-07-26') / 7 , 6)
+    END
+ELSE
+    BEGIN
+        SELECT
+          (CONVERT(VARCHAR(30), DATEDIFF(week, DATEADD(MONTH, DATEDIFF(MONTH, 0, convert(varchar(10), DATEADD(wk, DATEDIFF(d, 0, '2021-07-26') / 7, 6), 120)), 0)
+          , convert(varchar(10), '2021-07-26', 120)) + 1)) + '주차 목표: ' AS WEEKGAOL
+    END
